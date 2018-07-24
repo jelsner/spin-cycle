@@ -1,0 +1,87 @@
+Animate Tornado Genesis Locations
+=================================
+
+Based on: https://gist.github.com/thomasp85/9362bbfae956f2690794abeb2c11cdcc
+
+Get packages.  
+```{r}
+#devtools::install_github('thomasp85/gganimate')
+library(ggplot2)
+library(dplyr)
+library(sf)
+library(gganimate)
+library(USAboundaries)
+```
+
+Simplest. No map projection. Tornado data from https://www.spc.noaa.gov/wcm/#data. Get state borders. Read and filter the tornado data frame. Add a unique ID column.
+```{r}
+sts <- state.name[!state.name %in% c("Alaska", "Hawaii")]
+stateBorders <- us_states(states = sts)
+
+Tor.df <- read.csv(file = "1950-2017_actual_tornadoes.csv") %>%
+  filter(yr >= 1994, 
+         mag != -9,
+         !st %in% c('AK', 'PR', 'HI')) %>%
+  mutate(ID = seq.int(length(yr)))
+
+ggplot() +
+  geom_sf(data = stateBorders) +
+  geom_point(data = Tor.df, 
+             aes(x = slon, y = slat, group = ID)) +
+  labs(title = 'Year: {frame_time}') +
+  xlab("") + ylab("") +
+  theme_minimal() +
+  transition_time(yr) +
+  enter_fade() +
+  exit_fade() 
+```
+
+With projection. And color dots by EF rating.
+```{r}
+stateBordersP <- st_transform(stateBorders, crs = st_crs(102003))
+
+Tor.sfdf <- st_as_sf(Tor.df, coords = c("slon", "slat"), 
+                 crs = 4326)
+Tor.sfdfP <- st_transform(Tor.sfdf, crs = st_crs(102003))
+Tor.df <- cbind(Tor.df, st_coordinates(Tor.sfdfP))
+
+library(viridis)
+
+ggplot() +
+  geom_sf(data = stateBordersP) +
+  geom_point(data = Tor.df, aes(x = X, y = Y, 
+                                group = ID, color = factor(mag))) +
+  scale_color_viridis_d(name = "EF Rating") +
+  labs(title = 'Year: {closest_state}') +
+  ylab(NULL) + xlab(NULL) +
+  theme_minimal() +
+  transition_states(yr, 
+                    transition_length = .5, 
+                    state_length = 1) +
+  enter_fade() +
+  exit_fade()
+```
+
+2017 by month.
+```{r}
+Tor.df2 <- Tor.df %>%
+  filter(yr == 2017)
+
+ggplot() +
+  geom_sf(data = stateBordersP, color = "white", fill = "grey95", inherit.aes = FALSE) +
+  geom_point(data = Tor.df2, aes(x = X, y = Y, color = factor(mag))) +
+  scale_color_viridis_d(name = "Maximum\nEFRating", direction = -1) +
+  labs(title = 'Year: 2017, Month: {closest_state}') +
+  ylab(NULL) + xlab(NULL) +
+  theme_minimal() +
+  transition_states(mo, 
+                    transition_length = .1, 
+                    state_length = 1) +
+  enter_fade() +
+  exit_fade()
+```
+
+Use `anim_save()` to save rendered animation. Saves the last animation to disk or the 
+```{r}
+anim_save(file = "LastYear.gif")
+```
