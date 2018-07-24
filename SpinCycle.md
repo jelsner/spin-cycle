@@ -1,24 +1,45 @@
----
-title: "Animate Tornado Genesis Locations"
-author: "James Elsner"
-date: "2018-07-24"
-output: github_document
----
+Animate Tornado Genesis Locations
+================
+James Elsner
+2018-07-24
 
-Based on: https://gist.github.com/thomasp85/9362bbfae956f2690794abeb2c11cdcc
+Based on: <https://gist.github.com/thomasp85/9362bbfae956f2690794abeb2c11cdcc>
 
-Get packages.  
-```{r}
+Get packages.
+
+``` r
 #devtools::install_github('thomasp85/gganimate')
 library(ggplot2)
 library(dplyr)
+```
+
+    ## Warning: package 'dplyr' was built under R version 3.5.1
+
+    ## 
+    ## Attaching package: 'dplyr'
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     filter, lag
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     intersect, setdiff, setequal, union
+
+``` r
 library(sf)
+```
+
+    ## Linking to GEOS 3.6.1, GDAL 2.1.3, proj.4 4.9.3
+
+``` r
 library(gganimate)
 library(USAboundaries)
 ```
 
-Simplest. No map projection. Tornado data from https://www.spc.noaa.gov/wcm/#data. Get state borders. Read and filter the tornado data frame. Add a unique ID column.
-```{r}
+Simplest. No map projection. Tornado data from <https://www.spc.noaa.gov/wcm/#data>. Get state borders. Read and filter the tornado data frame. Add a unique ID column.
+
+``` r
 sts <- state.name[!state.name %in% c("Alaska", "Hawaii")]
 stateBorders <- us_states(states = sts)
 
@@ -40,8 +61,11 @@ ggplot() +
   exit_fade() 
 ```
 
+![](SpinCycle_files/figure-markdown_github/unnamed-chunk-2-1.gif)
+
 With projection. And color dots by EF rating.
-```{r, eval=FALSE}
+
+``` r
 stateBordersP <- st_transform(stateBorders, crs = st_crs(102003))
 
 Tor.sfdf <- st_as_sf(Tor.df, coords = c("slon", "slat"), 
@@ -67,7 +91,8 @@ ggplot() +
 ```
 
 2017 by month.
-```{r, eval=FALSE}
+
+``` r
 Tor.df2 <- Tor.df %>%
   filter(yr == 2017)
 
@@ -85,7 +110,8 @@ ggplot() +
   exit_fade()
 ```
 
-Use `anim_save()` to save rendered animation. Saves the last animation to disk or the 
-```{r, eval=FALSE}
+Use `anim_save()` to save rendered animation. Saves the last animation to disk or the
+
+``` r
 anim_save(file = "LastYear.gif")
 ```
