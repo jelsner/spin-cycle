@@ -3,6 +3,8 @@ title: "Animate Tornado Genesis Locations"
 author: "James Elsner"
 date: "2018-07-24"
 output: github_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 Based on: https://gist.github.com/thomasp85/9362bbfae956f2690794abeb2c11cdcc
@@ -40,7 +42,7 @@ ggplot() +
   exit_fade() 
 ```
 
-With projection. And color dots by EF rating.
+With map projection. Color dots by EF rating.
 ```{r, eval=FALSE}
 stateBordersP <- st_transform(stateBorders, crs = st_crs(102003))
 
@@ -55,7 +57,7 @@ ggplot() +
   geom_sf(data = stateBordersP) +
   geom_point(data = Tor.df, aes(x = X, y = Y, 
                                 group = ID, color = factor(mag))) +
-  scale_color_viridis_d(name = "EF Rating") +
+  scale_color_viridis_d(name = "EF Rating", direction = -1) +
   labs(title = 'Year: {closest_state}') +
   ylab(NULL) + xlab(NULL) +
   theme_minimal() +
@@ -88,4 +90,21 @@ ggplot() +
 Use `anim_save()` to save rendered animation. Saves the last animation to disk or the 
 ```{r, eval=FALSE}
 anim_save(file = "LastYear.gif")
+```
+
+2017 by day
+```{r}
+Tor.df2 <- Tor.df %>%
+  filter(yr == 2017) %>%
+  mutate(dy = format(as.Date(date,format="%m/%d/%y"), "%d"),
+         Date = as.POSIXct(paste(yr, mo, dy), format = "%Y%m%d"))
+
+ggplot() +
+  geom_sf(data = stateBordersP, color = "white", fill = "grey95", inherit.aes = FALSE) +
+  geom_point(data = Tor.df2, aes(x = X, y = Y, color = factor(mag))) +
+  scale_color_viridis_d(name = "Maximum\nEFRating", direction = -1) +
+  labs(title = 'Date: {frame_time}') +
+  ylab(NULL) + xlab(NULL) +
+  theme_minimal() +
+  transition_time(Date) 
 ```
