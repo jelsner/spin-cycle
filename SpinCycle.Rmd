@@ -43,7 +43,7 @@ ggplot() +
 ```
 
 With map projection. Color dots by EF rating.
-```{r, eval=FALSE}
+```{r}
 stateBordersP <- st_transform(stateBorders, crs = st_crs(102003))
 
 Tor.sfdf <- st_as_sf(Tor.df, coords = c("slon", "slat"), 
@@ -69,7 +69,7 @@ ggplot() +
 ```
 
 2017 by month.
-```{r, eval=FALSE}
+```{r}
 Tor.df2 <- Tor.df %>%
   filter(yr == 2017)
 
@@ -87,8 +87,8 @@ ggplot() +
   exit_fade()
 ```
 
-Use `anim_save()` to save rendered animation. Saves the last animation to disk or the 
-```{r, eval=FALSE}
+Use `anim_save()` to save rendered animation. Saves the last animation to a file.
+```{r}
 anim_save(file = "LastYear.gif")
 ```
 
