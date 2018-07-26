@@ -13,8 +13,6 @@ library(ggplot2)
 library(dplyr)
 ```
 
-    ## Warning: package 'dplyr' was built under R version 3.5.1
-
     ## 
     ## Attaching package: 'dplyr'
 
@@ -63,7 +61,7 @@ ggplot() +
 
 ![](SpinCycle_files/figure-markdown_github/unnamed-chunk-2-1.gif)
 
-With projection. And color dots by EF rating.
+With map projection. Color dots by EF rating.
 
 ``` r
 stateBordersP <- st_transform(stateBorders, crs = st_crs(102003))
@@ -74,12 +72,16 @@ Tor.sfdfP <- st_transform(Tor.sfdf, crs = st_crs(102003))
 Tor.df <- cbind(Tor.df, st_coordinates(Tor.sfdfP))
 
 library(viridis)
+```
 
+    ## Loading required package: viridisLite
+
+``` r
 ggplot() +
   geom_sf(data = stateBordersP) +
   geom_point(data = Tor.df, aes(x = X, y = Y, 
                                 group = ID, color = factor(mag))) +
-  scale_color_viridis_d(name = "EF Rating") +
+  scale_color_viridis_d(name = "EF Rating", direction = -1) +
   labs(title = 'Year: {closest_state}') +
   ylab(NULL) + xlab(NULL) +
   theme_minimal() +
@@ -89,6 +91,8 @@ ggplot() +
   enter_fade() +
   exit_fade()
 ```
+
+![](SpinCycle_files/figure-markdown_github/unnamed-chunk-3-1.gif)
 
 2017 by month.
 
@@ -110,8 +114,30 @@ ggplot() +
   exit_fade()
 ```
 
-Use `anim_save()` to save rendered animation. Saves the last animation to disk or the
+![](SpinCycle_files/figure-markdown_github/unnamed-chunk-4-1.gif)
+
+Use `anim_save()` to save rendered animation. Saves the last animation to a file.
 
 ``` r
 anim_save(file = "LastYear.gif")
 ```
+
+2017 by day
+
+``` r
+Tor.df2 <- Tor.df %>%
+  filter(yr == 2017) %>%
+  mutate(dy = format(as.Date(date,format="%m/%d/%y"), "%d"),
+         Date = as.POSIXct(paste(yr, mo, dy), format = "%Y%m%d"))
+
+ggplot() +
+  geom_sf(data = stateBordersP, color = "white", fill = "grey95", inherit.aes = FALSE) +
+  geom_point(data = Tor.df2, aes(x = X, y = Y, color = factor(mag))) +
+  scale_color_viridis_d(name = "Maximum\nEFRating", direction = -1) +
+  labs(title = 'Date: {frame_time}') +
+  ylab(NULL) + xlab(NULL) +
+  theme_minimal() +
+  transition_time(Date) 
+```
+
+![](SpinCycle_files/figure-markdown_github/unnamed-chunk-6-1.gif)
