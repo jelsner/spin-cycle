@@ -1,5 +1,5 @@
 ---
-title: "Animate Tornado Genesis Locations"
+title: "Animate"
 author: "James Elsner"
 date: "2018-07-24"
 output: github_document
@@ -8,6 +8,8 @@ editor_options:
 ---
 
 Based on: https://gist.github.com/thomasp85/9362bbfae956f2690794abeb2c11cdcc
+
+### Tornado Genesis Locations
 
 Get packages.  
 ```{r}
@@ -107,4 +109,29 @@ ggplot() +
   ylab(NULL) + xlab(NULL) +
   theme_minimal() +
   transition_time(Date) 
+```
+
+### Florida monthly precipitation
+
+```{r}
+loc <- "http://myweb.fsu.edu/jelsner/temp/data/FLprecip.txt"
+FLp <- read.table(loc, na.string = "-9.900", 
+                  header = TRUE)
+```
+
+```{r}
+ggplot(FLp, aes(x = Year, y = Jan)) +
+  geom_point() +
+  ylab("January Precipitation in Florida (in)") +
+  theme_minimal() +
+  transition_time(Year)
+```
+
+```{r}
+ggplot(FLp, aes(x = Year, y = Jan)) +
+  geom_point() +
+  ylab("January Precipitation in Florida (in)") +
+  theme_minimal() +
+  transition_time(Year) +
+  shadow_wake(wake_length = .1)
 ```
