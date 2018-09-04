@@ -134,4 +134,20 @@ ggplot(FLp, aes(x = Year, y = Jan)) +
   theme_minimal() +
   transition_time(Year) +
   shadow_wake(wake_length = .1)
+
+ggplot(FLp, aes(x = Year, y = Jan)) +
+  geom_line() +
+  geom_segment(aes(xend = 2011, yend = Jan), color = "blue") +
+  geom_point() +
+  geom_text(aes(x = 2020, label = Year)) +
+  transition_reveal(Year, Year) +
+  ease_aes('linear')
 ```
+
+ggplot(airq, aes(Day, Temp, group = Month)) + 
+  geom_line() + 
+  geom_segment(aes(xend = 31, yend = Temp)) + 
+  geom_point() + 
+  geom_text(aes(x = 31.1, label = Month)) + 
+  transition_reveal(Month, Day) + 
+  ease_aes('linear')
